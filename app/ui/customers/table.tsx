@@ -3,7 +3,7 @@ import { lusitana } from '@/app/ui/fonts';
 import Search from '@/app/ui/search';
 import { FormattedCustomersTable } from '@/app/lib/definitions';
 import {DeleteInvoice } from "@/app/ui/invoices/buttons";
-import {UpdateCustomer} from "@/app/ui/customers/buttons";
+import {DeleteCustomer, UpdateCustomer} from "@/app/ui/customers/buttons";
 
 export default async function CustomersTable({
   customers,
@@ -112,7 +112,7 @@ export default async function CustomersTable({
                       <td className="whitespace-nowrap bg-white py-3 pl-6 pr-3">
                         <div className="flex justify-end gap-3">
                           <UpdateCustomer id={customer.id} />
-                          <DeleteInvoice id={customer.id} />
+                          <DeleteCustomer id={customer.id} />
                         </div>
                       </td>
                     </tr>
