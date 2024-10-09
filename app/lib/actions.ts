@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import {logger} from "@auth/core/lib/utils/logger";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -23,12 +24,26 @@ const FormSchema = z.object({
 
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 const UpdateInvoice = FormSchema.omit({ date: true, id: true });
+const CreateCustomer = FormSchema.omit({ id: true, date: true });
+const UpdateCustomer = FormSchema.omit({ date: true, id: true });
 
 export type State = {
   errors?: {
     customerId?: string[];
     amount?: string[];
     status?: string[];
+    name?: string[];
+    email?:string[];
+    image_url?:string[];
+  };
+  message?: string | null;
+};
+
+export type CustomerState = {
+  errors?: {
+    name?: string[];
+    email?:string[];
+    image_url?:string[];
   };
   message?: string | null;
 };
@@ -136,4 +151,40 @@ export async function authenticate(
     }
     throw error;
   }
+}
+
+
+export async function updateCustomer(
+  id: string,
+  prevState: State,
+  formData: FormData,
+) {
+  console.log('UPDATEEEEEDDDDD0')
+  const validatedFields = UpdateCustomer.safeParse({
+    name: formData.get('name'),
+    email: formData.get('email'),
+    image_url: formData.get('image_url'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Update customer.',
+    };
+  }
+
+  const { name, email, image_url } = validatedFields.data;
+
+  try {
+    await sql`
+      UPDATE customers
+      SET name = ${name}, email = ${email}, image_url = ${image_url}
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    return { message: 'Database Error: Failed to Update Customer.' };
+  }
+
+  revalidatePath('/dashboard/customers');
+  redirect('/dashboard/customers');
 }

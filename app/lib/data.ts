@@ -1,5 +1,6 @@
-import { sql } from '@vercel/postgres';
+import {sql} from '@vercel/postgres';
 import {
+  Customer,
   CustomerField,
   CustomersTableType,
   InvoiceForm,
@@ -7,7 +8,7 @@ import {
   LatestInvoiceRaw,
   Revenue,
 } from './definitions';
-import { formatCurrency } from './utils';
+import {formatCurrency} from './utils';
 
 export async function fetchRevenue() {
   try {
@@ -162,6 +163,26 @@ export async function fetchInvoiceById(id: string) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch invoice.');
+  }
+}
+
+export async function fetchCustomerById(id: string) {
+  try {
+    const data = await sql<Customer>`
+      SELECT
+          customers.id,
+          customers.name,
+          customers.email,
+          customers.image_url
+      FROM customers
+      WHERE customers.id = ${id};
+    `;
+    console.log('data:',data)
+    // Retourner le premier (et normalement unique) résultat, ou null si aucun résultat
+    return data.rows[0] || null;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch customer.');
   }
 }
 
