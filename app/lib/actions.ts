@@ -171,6 +171,41 @@ export async function authenticate(
   }
 }
 
+export async function createCustomer(prevState: CustomerState, formData: FormData){
+  const validatedFields = CreateCustomer.safeParse({
+    name: formData.get('name'),
+    email: formData.get('email'),
+    image_url: formData.get('image_url'),
+  });
+
+
+  if (!validatedFields.success){
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Customer'
+    };
+  }
+
+  const {name, email, image_url} = validatedFields.data;
+
+  try {
+    console.log('dqzdqzd', validatedFields.data);
+    await sql`
+      INSERT INTO customers (name, email, image_url)
+      VALUES (${name}, ${email}, ${image_url})
+    `;
+  } catch (error) {
+    console.error("Database Error:", error);
+    return {
+      message: 'Database Error: Failed to Create Customer.'
+    };
+  }
+
+
+  revalidatePath('/dashboard/customers');
+  redirect('/dashboard/customers');
+}
+
 export async function updateCustomer(
   id: string,
   prevState: State,
