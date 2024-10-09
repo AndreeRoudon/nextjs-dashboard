@@ -7,8 +7,7 @@ import {
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
 import {CustomerState, State, updateCustomer} from '@/app/lib/actions';
-import { useActionState } from 'react';
-
+import React, { useActionState } from 'react';
 
 export default function EditCustomerForm({
   customer
@@ -18,10 +17,9 @@ export default function EditCustomerForm({
   const initialState: CustomerState = { message: null, errors: {} };
   const updateCustomerWithId = updateCustomer.bind(null, customer.id);
   const [state, formAction] = useActionState(updateCustomerWithId, initialState);
-  console.log("Form Action: ", formAction);
 
   return (
-    <form action={formAction} method="POST" onSubmit={(e) => { console.log("Form submitted"); }}>
+    <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">

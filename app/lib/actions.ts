@@ -22,10 +22,28 @@ const FormSchema = z.object({
   date: z.string(),
 });
 
+const CustomerSchema = z.object({
+  id: z.string(),
+  name: z
+    .string({
+      required_error: 'Please enter a name.',
+    })
+    .min(3, { message: 'Name must be at least 3 characters.' }),
+  email: z
+    .string({
+      required_error: 'Please enter an email address.',
+    })
+    .email({ message: 'Please enter a valid email address.' }),
+  image_url: z
+    .string({
+      required_error: 'Please enter an image url.',
+    })
+});
+
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 const UpdateInvoice = FormSchema.omit({ date: true, id: true });
-const CreateCustomer = FormSchema.omit({ id: true, date: true });
-const UpdateCustomer = FormSchema.omit({ date: true, id: true });
+const CreateCustomer = CustomerSchema.omit({ id: true });
+const UpdateCustomer = CustomerSchema.omit({ id: true });
 
 export type State = {
   errors?: {
@@ -153,13 +171,11 @@ export async function authenticate(
   }
 }
 
-
 export async function updateCustomer(
   id: string,
   prevState: State,
   formData: FormData,
 ) {
-  console.log('UPDATEEEEEDDDDD0')
   const validatedFields = UpdateCustomer.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
@@ -172,7 +188,6 @@ export async function updateCustomer(
       message: 'Missing Fields. Failed to Update customer.',
     };
   }
-
   const { name, email, image_url } = validatedFields.data;
 
   try {
